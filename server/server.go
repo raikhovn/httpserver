@@ -125,72 +125,79 @@ func NewServer(Port int, Host string) *Server {
 	return s
 }
 
-// Define methods
+// Define handlers
+func ListDirsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("RegisterListDirs() called")
+	params, err := r.URL.Query()["dir"]
+
+	if !err || len(params[0]) < 1 {
+		log.Println("Url Param 'dir' is missing")
+		err := fmt.Errorf("Url Param 'dir' is missing")
+		panic(err)
+	}
+	log.Println("Calling ListDirs")
+	resp := ListDirs(params[0])
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		panic(err)
+	}
+}
+
+func ListFilesHandler(w http.ResponseWriter, r *http.Request) {
+
+	params, err := r.URL.Query()["dir"]
+
+	if !err || len(params[0]) < 1 {
+		log.Println("Url Param 'dir' is missing")
+		err := fmt.Errorf("Url Param 'dir' is missing")
+		panic(err)
+	}
+	log.Println("Calling ListFiles")
+	resp := ListFiles(params[0])
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		panic(err)
+	}
+}
+
+func GetFileInfoHandler(w http.ResponseWriter, r *http.Request) {
+
+	params, err := r.URL.Query()["file"]
+
+	if !err || len(params[0]) < 1 {
+		log.Println("Url Param 'file' is missing")
+		err := fmt.Errorf("Url Param 'file' is missing")
+		panic(err)
+	}
+	log.Println("Calling GetFileInfo")
+	resp := GetFileInfo(params[0])
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		panic(err)
+	}
+}
+
+// Define struct methods
 func (s Server) RegisterListDirs() {
 	log.Println("func (s Server) RegisterListDirs()")
-	http.HandleFunc("/listdirs", func(w http.ResponseWriter, r *http.Request) {
-
-		log.Println("RegisterListDirs() called")
-		params, err := r.URL.Query()["dir"]
-
-		if !err || len(params[0]) < 1 {
-			log.Println("Url Param 'dir' is missing")
-			err := fmt.Errorf("Url Param 'dir' is missing")
-			panic(err)
-		}
-		log.Println("Calling ListDirs")
-		resp := ListDirs(params[0])
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
-	})
+	http.HandleFunc("/listdirs", ListDirsHandler)
 }
 
 func (s Server) RegisterListFiles() {
 	log.Println("func (s Server) RegisterListFiles()")
-	http.HandleFunc("/listfiles", func(w http.ResponseWriter, r *http.Request) {
-
-		params, err := r.URL.Query()["dir"]
-
-		if !err || len(params[0]) < 1 {
-			log.Println("Url Param 'dir' is missing")
-			err := fmt.Errorf("Url Param 'dir' is missing")
-			panic(err)
-		}
-		log.Println("Calling ListFiles")
-		resp := ListFiles(params[0])
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
-	})
+	http.HandleFunc("/listfiles", ListFilesHandler)
 }
 
 func (s Server) RegisterGetFileInfo() {
 	log.Println("func (s Server) RegisterGetFileInfo()")
-	http.HandleFunc("/getfileinfo", func(w http.ResponseWriter, r *http.Request) {
-
-		params, err := r.URL.Query()["file"]
-
-		if !err || len(params[0]) < 1 {
-			log.Println("Url Param 'file' is missing")
-			err := fmt.Errorf("Url Param 'file' is missing")
-			panic(err)
-		}
-		log.Println("Calling GetFileInfo")
-		resp := GetFileInfo(params[0])
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
-	})
+	http.HandleFunc("/getfileinfo", GetFileInfoHandler)
 }
 
 func (s Server) RegisterIndex() {
